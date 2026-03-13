@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car & Fuel · trading system</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f0f4fa;
+            color: #13294b;
+            padding: 1.5rem 1rem;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        /* card style */
+        .card {
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.7);
+            border-radius: 28px;
+            box-shadow: 0 12px 28px -12px rgba(0,0,0,0.05);
+            padding: 1.2rem 1.5rem;
+            transition: 0.1s;
+            break-inside: avoid;
+        }
+
+        .card-header {
+            display: flex; align-items: center; gap: 10px;
+            border-bottom: 2px solid #e0e9f2; padding-bottom: 0.6rem; margin-bottom: 1rem;
+        }
+        .card-header i {
+            font-size: 1.6rem; color: #1f3a6b; background: #e6eefc; padding: 8px; border-radius: 18px;
+        }
+        .card-header h2 {
+            font-weight: 600; font-size: 1.25rem; letter-spacing: -0.01em; color: #0b1d3a;
+        }
+
+        /* title block with buttons */
+        .title-block {
+            background: white;
+            border-radius: 40px;
+            padding: 1.2rem 2rem;
+            box-shadow: 0 8px 18px -10px #99aec9;
+            position: relative;
+        }
+        .title-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .title-main {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #102a4c;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+        .title-sub {
+            font-size: 1rem;
+            color: #4b6382;
+            margin-top: 0.2rem;
+            font-weight: 500;
+        }
+        .title-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        .btn-title {
+            padding: 0.6rem 1.5rem;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+            border: none;
+        }
+        .btn-title:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        .btn-pdf { background: #1f3a6b; color: white; }
+        .btn-csv { background: #1a6e4b; color: white; }
+
+        /* mantra card */
+        .mantra-card {
+            background: #e3edfe;
+            border-radius: 38px;
+            padding: 1rem 1.8rem;
+            border-left: 8px solid #2b3a67;
+            font-size: 0.9rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 1rem 2rem;
+        }
+        .rule-badge {
+            background: #1f2e4a;
+            color: white;
+            border-radius: 40px;
+            padding: 0.2rem 1.2rem;
+            font-weight: 600;
+        }
+
+        /* checklist items */
+        .checklist-item {
+            background: #f1f7ff;
+            border: 1px solid #cad5e6;
+            border-radius: 30px;
+            padding: 0.5rem 1.2rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        .checklist-item input[type=checkbox] {
+            width: 18px; height: 18px; accent-color: #2b3a67;
+        }
+
+        .progress-bar {
+            background: #dce3ef;
+            border-radius: 30px;
+            height: 24px;
+            margin: 0.8rem 0;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #2b3a67, #5b6f95);
+            border-radius: 30px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.8rem;
+            transition: width 0.3s ease;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.2rem;
+        }
+
+        /* matrix table & checker tabs */
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+        .matrix-table th {
+            background: #e3eaf3;
+            padding: 0.6rem;
+            font-weight: 600;
+            text-align: left;
+        }
+        .matrix-table td {
+            padding: 0.6rem;
+            border-bottom: 1px solid #d2deeb;
+        }
+        .badge-mini {
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        .btn-toggle {
+            background: transparent;
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 26px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #4b6382;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-toggle.active {
+            background: white;
+            color: #1f3a6b;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        /* journal form */
+        .journal-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 0.8rem;
+            align-items: flex-end;
+        }
+        .journal-field {
+            flex: 1 0 120px;
+        }
+        .journal-field label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #3d5675;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+            display: block;
+        }
+        .journal-field input,
+        .journal-field select {
+            background: white;
+            border: 2px solid #d6e0ed;
+            border-radius: 30px;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            width: 100%;
+        }
+
+        .note-box {
+            background: #f4f9ff;
+            border-radius: 24px;
+            padding: 0.8rem;
+            border: 2px dashed #a7bedb;
+            margin: 0.8rem 0;
+        }
+        .note-box textarea {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-size: 0.8rem;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .btn {
+            background: #f0f5fe;
+            border: 1px solid #b9c9e5;
+            border-radius: 40px;
+            padding: 0.4rem 1rem;
+            font-weight: 600;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .btn-primary { background: #1f3a6b; color: white; border: none; }
+        .btn-success { background: #1a6e4b; color: white; border: none; }
+        .btn-warning { background: #b6560c; color: white; border: none; }
+
+        .screenshot-panel {
+            border: 2px dashed #b1c6e0;
+            border-radius: 28px;
+            background: #f7fbfe;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .screenshot-panel:hover {
+            background: #edf3fc;
+            border-color: #1f3a6b;
+        }
+
+        /* entries table */
+        .entries-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            font-size: 0.7rem;
+        }
+        .entries-table th { background: #e3eaf3; padding: 0.3rem; text-align: left; }
+        .entries-table td { padding: 0.3rem; border-bottom: 1px solid #d2deeb; }
+
+        /* Clear all card */
+        .clear-all-card {
+            background: linear-gradient(145deg, #f8fafd, #edf2f9);
+            border: 2px solid #d9e3f0;
+            margin-top: 0.5rem;
+        }
+        .clear-all-card .btn-danger {
+            background: #b13e3e; color: white; border: none; padding: 0.8rem 2rem; font-size: 1rem;
+            border-radius: 50px; box-shadow: 0 8px 15px rgba(176, 62, 62, 0.3); transition: all 0.3s ease;
+        }
+        .clear-all-card .btn-danger:hover { background: #8f2e2e; transform: translateY(-3px); box-shadow: 0 12px 20px rgba(176, 62, 62, 0.4); }
+
+        /* print optimization */
+        @media print {
+            body { background: white; padding: 0.3in; }
+            .btn, .screenshot-panel, .title-buttons, .no-print, .matrix-toggle { display: none; }
+            .card { break-inside: avoid; background: white; border: 1px solid #ccc; box-shadow: none; }
+            #matrixCheckerContainer { display: none !important; }
+            #matrixTableContainer { display: block !important; }
+        }
+
+        footer { text-align: center; font-size: 0.7rem; opacity: 0.6; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="title-block no-print">
+        <div class="title-container">
+            <div>
+                <div class="title-main">THE CAR & FUEL AK TRADING SYSTEM</div>
+                <div class="title-sub">Consistency is the edge. Execute without hesitation.</div>
+            </div>
+            <div class="title-buttons">
+                <button class="btn-title btn-pdf" id="pdfExportBtn">
+                    <i class="fas fa-file-pdf"></i> PDF
+                </button>
+                <button class="btn-title btn-csv" id="csvExportBtn">
+                    <i class="fas fa-download"></i> CSV
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="mantra-card no-print">
+        <span class="rule-badge"><i class="far fa-clock"></i> 3-SECOND RULE</span>
+        <span>1. Check Table → 2. Count Criteria → 3. EXECUTE.</span>
+        <span style="color:#1a2e4f;"><i class="fas fa-quote-right"></i> My system has 6 criteria. I don't need 7. If signal is there, I execute. If not, I wait.</span>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-google-sheets"></i>
+            <h2>Data Sync (Google AppScript URL)</h2>
+        </div>
+        <div class="url-manager" style="display: flex; flex-wrap: wrap; gap: 12px; background: #ecf3fa; border-radius: 60px; padding: 1rem 1.5rem; margin-bottom: 1rem;">
+            <select id="gs-url-select" class="url-select" style="flex:2; border-radius:40px; padding:0.6rem 1rem; border:2px solid #d6e0ed; background:white;">
+                <option value="">➕ Add new URL...</option>
+            </select>
+            <div class="url-input-group" style="display: flex; flex:3; gap: 8px;">
+                <input type="text" id="new-gs-url" placeholder="https://script.google.com/.../exec" value="" style="flex:1; border-radius:40px; padding:0.6rem 1rem; border:2px solid #d6e0ed;">
+                <button class="btn btn-primary" id="add-url-btn" style="background:#1f3a6b; color:white; border:none; padding:0.6rem 1.2rem;"><i class="fas fa-save"></i> save URL</button>
+            </div>
+        </div>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <button class="btn" id="test-conn"><i class="fas fa-plug"></i> test connection</button>
+            <button class="btn btn-success" id="save-trade-sheet"><i class="fas fa-cloud-upload-alt"></i> save trade to sheet</button>
+            <button class="btn" id="clear-urls"><i class="fas fa-trash-alt"></i> manage</button>
+        </div>
+        <div id="gs-status" style="margin-top: 1rem; display: none; padding:0.8rem 1.5rem; border-radius:40px;"></div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-clipboard-list"></i>
+            <h2>Pre‑trade Scan</h2>
+        </div>
+        <div class="checklist-item">
+            <input type="checkbox" id="pre-1" onchange="updateProgress('pre-trade')">
+            <label>Market session active (no major news)</label>
+        </div>
+        <div class="checklist-item">
+            <input type="checkbox" id="pre-2" onchange="updateProgress('pre-trade')">
+            <label>Table visible & showing current data</label>
+        </div>
+        <div class="checklist-item">
+            <input type="checkbox" id="pre-3" onchange="updateProgress('pre-trade')">
+            <label>Action row: Bull Ready / Bear Ready / Neutral</label>
+        </div>
+        <div class="checklist-item">
+            <input type="checkbox" id="pre-4" onchange="updateProgress('pre-trade')">
+            <label>Alignment: Bull Align or Bear Align</label>
+        </div>
+        <div class="checklist-item">
+            <input type="checkbox" id="pre-5" onchange="updateProgress('pre-trade')">
+            <label>Strength: Very Strong / Strong / Normal / Weak</label>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="pre-trade-progress" style="width:0%">0%</div>
+        </div>
+    </div>
+
+    <div class="card no-print">
+        <div class="card-header" style="justify-content: space-between; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-th"></i><h2>Action Matrix Reference</h2>
+            </div>
+            <div class="matrix-toggle" style="display: flex; background: #e3eaf3; border-radius: 30px; padding: 4px;">
+                <button class="btn-toggle active" id="btn-tab-table" onclick="switchMatrixTab('table')">Matrix Reference</button>
+                <button class="btn-toggle" id="btn-tab-checker" onclick="switchMatrixTab('checker')">Matrix Checker</button>
+            </div>
+        </div>
+
+        <div id="matrixTableContainer" style="overflow-x: auto;">
+            <table class="matrix-table">
+                <thead>
+                    <tr>
+                        <th>CAR SPEED</th>
+                        <th>FUEL SPEED</th>
+                        <th>MARKET STATE</th>
+                        <th>PSYCHOLOGY</th>
+                        <th>ACTION</th>
+                        <th>CRITERIA REQUIRED</th>
+                    </tr>
+                </thead>
+                <tbody id="matrixTableBody">
+                    </tbody>
+            </table>
+        </div>
+
+        <div id="matrixCheckerContainer" style="display: none; padding: 1rem 0;">
+            <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 1.5rem;">
+                <div style="flex: 1; min-width: 200px;">
+                    <label style="font-size: 0.75rem; font-weight: 700; color: #3d5675; text-transform: uppercase; margin-bottom: 5px; display: block;">CAR SPEED</label>
+                    <select id="checkerCar" style="width: 100%; padding: 0.8rem; border-radius: 12px; border: 2px solid #d6e0ed; font-size: 1rem; color: #13294b; background: white;" onchange="updateChecker()">
+                        <option value="↑↑ Very Strong">↑↑ Very Strong</option>
+                        <option value="↑ Strong">↑ Strong</option>
+                        <option value="↑ Weak/Normal">↑ Weak/Normal</option>
+                        <option value="→ Neutral">→ Neutral</option>
+                        <option value="↓ Weak/Normal">↓ Weak/Normal</option>
+                        <option value="↓ Strong">↓ Strong</option>
+                        <option value="↓↓ Very Strong">↓↓ Very Strong</option>
+                    </select>
+                </div>
+                <div style="flex: 1; min-width: 200px;">
+                    <label style="font-size: 0.75rem; font-weight: 700; color: #3d5675; text-transform: uppercase; margin-bottom: 5px; display: block;">FUEL SPEED</label>
+                    <select id="checkerFuel" style="width: 100%; padding: 0.8rem; border-radius: 12px; border: 2px solid #d6e0ed; font-size: 1rem; color: #13294b; background: white;" onchange="updateChecker()">
+                        <option value="↑↑ Very Strong">↑↑ Very Strong</option>
+                        <option value="↑ Strong">↑ Strong</option>
+                        <option value="↑ Weak/Normal">↑ Weak/Normal</option>
+                        <option value="→ Neutral">→ Neutral</option>
+                        <option value="↓ Weak/Normal">↓ Weak/Normal</option>
+                        <option value="↓ Strong">↓ Strong</option>
+                        <option value="↓↓ Very Strong">↓↓ Very Strong</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="checkerResult" style="background: #f4f9ff; border: 2px dashed #a7bedb; border-radius: 16px; padding: 1.5rem; text-align: center;">
+                </div>
+        </div>
+    </div>
+
+    <div class="grid-2 no-print">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-arrow-up" style="color:#1a6e4b;"></i><h2>Long Decision</h2></div>
+            <div class="checklist-item"><input type="checkbox" id="long1" onchange="updateLong()"><label>#1 CDC Green Zone</label></div>
+            <div class="checklist-item"><input type="checkbox" id="long2" onchange="updateLong()"><label>#2 Price Flip R→G</label></div>
+            <div class="checklist-item"><input type="checkbox" id="long3" onchange="updateLong()"><label>#3 Price > Dynamic EMA</label></div>
+            <div class="checklist-item"><input type="checkbox" id="long4" onchange="updateLong()"><label>#4 CVD Alignment</label></div>
+            <div class="checklist-item"><input type="checkbox" id="long5" onchange="updateLong()"><label>#5 Price > EMA100</label></div>
+            <div class="checklist-item"><input type="checkbox" id="long6" onchange="updateLong()"><label>#6 Trend Filter UP</label></div>
+            <div class="progress-bar"><div class="progress-fill" id="longProgress">0/6</div></div>
+            <div id="longAct" style="font-weight:600; font-size:0.8rem;">check criteria</div>
+            <button class="btn btn-success btn-sm" style="margin-top:5px;" onclick="fillTrade('long')">apply to journal</button>
+        </div>
+        <div class="card">
+            <div class="card-header"><i class="fas fa-arrow-down" style="color:#b13e3e;"></i><h2>Short Decision</h2></div>
+            <div class="checklist-item"><input type="checkbox" id="short1" onchange="updateShort()"><label>#1 CDC Red Zone</label></div>
+            <div class="checklist-item"><input type="checkbox" id="short2" onchange="updateShort()"><label>#2 Price Flip G→R</label></div>
+            <div class="checklist-item"><input type="checkbox" id="short3" onchange="updateShort()"><label>#3 Price < Dynamic EMA</label></div>
+            <div class="checklist-item"><input type="checkbox" id="short4" onchange="updateShort()"><label>#4 CVD Bear Alignment</label></div>
+            <div class="checklist-item"><input type="checkbox" id="short5" onchange="updateShort()"><label>#5 Price < EMA100</label></div>
+            <div class="checklist-item"><input type="checkbox" id="short6" onchange="updateShort()"><label>#6 Trend Filter DOWN</label></div>
+            <div class="progress-bar"><div class="progress-fill" id="shortProgress">0/6</div></div>
+            <div id="shortAct" style="font-weight:600; font-size:0.8rem;">check criteria</div>
+            <button class="btn btn-danger btn-sm" style="margin-top:5px;" onclick="fillTrade('short')">apply to journal</button>
+        </div>
+    </div>
+
+    <div class="card" id="journalSection">
+        <div class="card-header"><i class="fas fa-journal-whills"></i><h2>Trading Journal · Risk Management</h2></div>
+        <div class="journal-row">
+            <div class="journal-field"><label>ID</label><input type="text" id="journalID" placeholder="#L42"></div>
+            <div class="journal-field"><label>pair</label><input type="text" id="journalPair" value="XAUUSD"></div>
+            <div class="journal-field"><label>timeframe</label><select id="journalTF"><option>5m</option><option>15m</option><option>30m</option><option>1h</option><option>4h</option><option>1D</option><option>1W</option></select></div>
+            <div class="journal-field"><label>type</label><select id="journalType"><option>long</option><option>short</option><option>spot</option></select></div>
+        </div>
+        <div class="journal-row">
+            <div class="journal-field"><label>fund ($)</label><input type="number" id="fund" value="2000" step="100"></div>
+            <div class="journal-field"><label>risk %</label><input type="number" id="riskPercent" value="1.5" step="0.1" oninput="calcRiskAmount()"></div>
+            <div class="journal-field"><label>risk $</label><input type="text" id="riskAmount" readonly value="30.00"></div>
+            <div class="journal-field"><label>entry $</label><input type="number" id="entryPrice" value="2050.50" step="0.1"></div>
+        </div>
+        <div class="journal-row">
+            <div class="journal-field"><label>prev low</label><input type="number" id="prevLow" value="2045.20" step="0.1"></div>
+            <div class="journal-field"><label>ATR</label><input type="number" id="atr" value="12.5" step="0.1" oninput="calcStop()"></div>
+            <div class="journal-field"><label>ATR mult</label><input type="number" id="atrMult" value="2" step="0.5" oninput="calcStop()"></div>
+            <div class="journal-field"><label>stop‑loss</label><input type="text" id="stopLoss" readonly value="2020.20"></div>
+        </div>
+        <div class="journal-row">
+            <div class="journal-field"><label>buy date</label><input type="date" id="buyDate" value="2025-04-01"></div>
+            <div class="journal-field"><label>sell date</label><input type="date" id="sellDate" value="2025-04-03"></div>
+            <div class="journal-field"><label>PnL $</label><input type="text" id="pnl" value="+124.50"></div>
+        </div>
+        <div class="note-box">
+            <textarea id="journalNote" rows="2" placeholder="notes / lessons"></textarea>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="btn btn-success" onclick="saveJournalEntry()"><i class="fas fa-save"></i> save entry</button>
+            <button class="btn" onclick="clearJournalFields()">clear</button>
+        </div>
+
+        <div style="margin-top: 1.5rem;">
+            <h3 style="font-size:0.9rem; margin-bottom:0.5rem;"><i class="fas fa-history"></i> Saved entries (<span id="entryCount">0</span>)</h3>
+            <table class="entries-table" id="entriesTable">
+                <thead>
+                    <tr>
+                        <th>ID</th><th>Pair</th><th>TF</th><th>Type</th><th>Fund</th><th>Risk%</th><th>Risk$</th>
+                        <th>Entry</th><th>Stop</th><th>Buy</th><th>Sell</th><th>PnL</th>
+                    </tr>
+                </thead>
+                <tbody id="entriesTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card screenshot-panel no-print" id="screenshotBox">
+        <i class="fas fa-camera" style="font-size: 2rem; color: #4b6382; margin-bottom: 0.5rem;"></i>
+        <p style="margin-bottom: 0.5rem;"><strong>📸 Click to browse</strong> or <strong>paste image</strong></p>
+        <p style="font-size: 0.75rem; color: #6b7a8f; margin-bottom: 0.5rem;">PNG / JPG up to 5MB</p>
+        <input type="file" id="screenshotFile" accept="image/*" style="display: none;">
+        <div id="chartPreview" style="margin-top: 0.8rem; min-height: 60px;"></div>
+        <button class="btn btn-sm" id="clearScreenshotBtn" style="margin-top: 0.5rem; display: none;"><i class="fas fa-times"></i> clear</button>
+    </div>
+
+    <div class="card clear-all-card no-print">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="background: #1f3a6b; width: 50px; height: 50px; border-radius: 30px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-broom" style="font-size: 1.5rem; color: white;"></i>
+                </div>
+                <div>
+                    <h3 style="font-size: 1.2rem; font-weight: 700; color: #1a2e4f;">Reset Everything</h3>
+                    <p style="font-size: 0.85rem; color: #4b6589;">Clear all journal entries, uncheck all boxes, and remove screenshot</p>
+                </div>
+            </div>
+            <button class="btn btn-danger" id="clearEverythingBtn">
+                <i class="fas fa-trash-alt"></i> Clear Everything
+            </button>
+        </div>
+    </div>
+
+    <div class="no-print" style="text-align: center; font-size: 0.8rem; color: #4b6382; margin-bottom: 0.5rem;">
+        <em><strong>System Philosophy:</strong> Price structure builds the vehicle (Car), while volume momentum provides the thrust (Fuel).</em>
+    </div>
+
+    <footer class="no-print">&copy; 2026 Structure & Flow AK Trading System &bull; v1.0 &bull; All Rights Reserved</footer>
+</div>
+    
+<script>
+    // ========== 25 SCENARIOS MATRIX DATA ==========
+    const matrixScenarios = [
+        {car: "↑↑ Very Strong", fuel: "↑↑ Very Strong", state: "Breakout Expansion", psych: "Mass FOMO + Smart Money leading", action: "✅ ENTER 50%", criteria: "BuyCount ≥4"},
+        {car: "↑↑ Very Strong", fuel: "↑ Strong", state: "Strong Momentum", psych: "Strong trend with conviction", action: "✅ ENTER 50%", criteria: "BuyCount ≥4"},
+        {car: "↑↑ Very Strong", fuel: "↑ Weak/Normal", state: "Price-Led Rally", psych: "Retail chasing, low conviction", action: "⚠️ WAIT", criteria: "BuyCount ≥5 for +25%"},
+        {car: "↑↑ Very Strong", fuel: "→ Neutral", state: "Divergence", psych: "Price strong, fuel flat", action: "⚠️ WATCH", criteria: "Need fuel confirmation"},
+        {car: "↑↑ Very Strong", fuel: "↓ Weak/Normal", state: "Hidden Distribution", psych: "Price up, light selling", action: "⚠️ CAUTION", criteria: "Prepare for reversal"},
+        {car: "↑↑ Very Strong", fuel: "↓ Strong", state: "Strong Bear Divergence", psych: "Price up, heavy selling", action: "🛑 EXIT LONGS", criteria: "SellCount emerging"},
+        {car: "↑↑ Very Strong", fuel: "↓↓ Very Strong", state: "Extreme Divergence", psych: "Price peak, smart money exiting", action: "🛑 EXIT ALL", criteria: "SellCount ≥3"},
+        {car: "↑ Strong", fuel: "↑↑ Very Strong", state: "Smart Money Accumulation", psych: "Fuel leading, price following", action: "✅ PREPARE ENTRY", criteria: "Watch for flip"},
+        {car: "↑ Strong", fuel: "↑ Strong", state: "Healthy Trend", psych: "Balanced momentum", action: "✅ ENTER 25-50%", criteria: "BuyCount ≥4"},
+        {car: "↑ Strong", fuel: "↑ Weak/Normal", state: "Weak Trend", psych: "Price up, low fuel", action: "⚠️ REDUCE SIZE", criteria: "Need more confirmation"},
+        {car: "↑ Strong", fuel: "→ Neutral", state: "Consolidation", psych: "Price stalling, fuel flat", action: "⏸️ HOLD / WAIT", criteria: "Wait for direction"},
+        {car: "↑ Strong", fuel: "↓ Weak/Normal", state: "Early Reversal", psych: "Price up, fuel turning down", action: "⚠️ TIGHTEN STOPS", criteria: "Watch for sell signals"},
+        {car: "↑ Strong", fuel: "↓ Strong", state: "Bearish Divergence", psych: "Price up, fuel down", action: "🛑 EXIT LONGS", criteria: "SellCount increasing"},
+        {car: "↑ Weak/Normal", fuel: "↑↑ Very Strong", state: "Stealth Accumulation", psych: "Smart Money loading", action: "✅ PREPARE ENTRY", criteria: "Watch for Car flip"},
+        {car: "↑ Weak/Normal", fuel: "↑ Strong", state: "Building Momentum", psych: "Fuel leading higher", action: "⚠️ WATCH FOR CONFIRMATION", criteria: "Need price flip"},
+        {car: "↑ Weak/Normal", fuel: "↑ Weak/Normal", state: "Weak Rally", psych: "Low conviction bounce", action: "⏸️ STAY OUT", criteria: "Wait for strength"},
+        {car: "↑ Weak/Normal", fuel: "→ Neutral", state: "Directionless", psych: "No clear signal", action: "🛑 STAY OUT", criteria: "Wait for setup"},
+        {car: "↑ Weak/Normal", fuel: "↓ Weak/Normal", state: "Choppy Downtrend", psych: "Mixed signals", action: "🛑 STAY OUT", criteria: "No trade"},
+        {car: "→ Neutral", fuel: "↑↑ Very Strong", state: "Fuel Surge", psych: "Volume building, price flat", action: "⚠️ WATCH FOR BREAKOUT", criteria: "Prepare for long"},
+        {car: "→ Neutral", fuel: "↑ Strong", state: "Accumulation Zone", psych: "Quiet buying", action: "👀 MONITOR", criteria: "Watch for price flip"},
+        {car: "→ Neutral", fuel: "→ Neutral", state: "Complete Chop", psych: "No conviction", action: "🛑 STAY OUT", criteria: "Wait for count ≥4"},
+        {car: "→ Neutral", fuel: "↓ Strong", state: "Distribution Zone", psych: "Quiet selling", action: "👀 MONITOR", criteria: "Watch for price flip"},
+        {car: "→ Neutral", fuel: "↓↓ Very Strong", state: "Fuel Collapse", psych: "Volume selling, price flat", action: "⚠️ WATCH FOR BREAKDOWN", criteria: "Prepare for short"},
+        {car: "↓ Weak/Normal", fuel: "↓↓ Very Strong", state: "Stealth Distribution", psych: "Smart Money unloading", action: "✅ PREPARE SHORT", criteria: "Watch for Car flip"},
+        {car: "↓↓ Very Strong", fuel: "↓↓ Very Strong", state: "Capitulation/Crash", psych: "Panic selling + Smart Money distributing", action: "✅ SHORT 50%", criteria: "SellCount ≥4"}
+    ];
+
+    // Helper functions for dynamic badge colors
+    function getSpeedColor(val) {
+        if(val.includes('↑↑ Very Strong') || val === '↑ Strong') return '#c6f0d5';
+        if(val.includes('↓↓ Very Strong') || val === '↓ Strong' || val === '↓ Weak/Normal') return '#fbc1c1';
+        if(val.includes('Weak/Normal')) return '#f9e0a3';
+        return '#e1eaf3';
+    }
+
+    function getActionColor(val) {
+        if(val.includes('✅ ENTER') || val.includes('✅ PREPARE ENTRY')) return '#c6f0d5';
+        if(val.includes('SHORT') || val.includes('EXIT')) return '#fbc1c1';
+        if(val.includes('⚠️')) return '#f9e0a3';
+        return '#e1eaf3';
+    }
+
+    // Render Matrix Table
+    function renderMatrixTable() {
+        const tbody = document.getElementById('matrixTableBody');
+        tbody.innerHTML = matrixScenarios.map(s => `
+            <tr>
+                <td><span class="badge-mini" style="background:${getSpeedColor(s.car)}; color:#13294b;">${s.car}</span></td>
+                <td><span class="badge-mini" style="background:${getSpeedColor(s.fuel)}; color:#13294b;">${s.fuel}</span></td>
+                <td><strong>${s.state}</strong></td>
+                <td>${s.psych}</td>
+                <td><span class="badge-mini" style="background:${getActionColor(s.action)}; color:#13294b;">${s.action}</span></td>
+                <td>${s.criteria}</td>
+            </tr>
+        `).join('');
+    }
+
+    // Switch between Table and Checker
+    window.switchMatrixTab = function(tabName) {
+        if(tabName === 'table') {
+            document.getElementById('matrixTableContainer').style.display = 'block';
+            document.getElementById('matrixCheckerContainer').style.display = 'none';
+            document.getElementById('btn-tab-table').classList.add('active');
+            document.getElementById('btn-tab-checker').classList.remove('active');
+        } else {
+            document.getElementById('matrixTableContainer').style.display = 'none';
+            document.getElementById('matrixCheckerContainer').style.display = 'block';
+            document.getElementById('btn-tab-table').classList.remove('active');
+            document.getElementById('btn-tab-checker').classList.add('active');
+            updateChecker(); // initialize default values
+        }
+    };
+
+    // Update the Logic Checker results
+    window.updateChecker = function() {
+        const carVal = document.getElementById('checkerCar').value;
+        const fuelVal = document.getElementById('checkerFuel').value;
+        const resBox = document.getElementById('checkerResult');
+        
+        const scenario = matrixScenarios.find(s => s.car === carVal && s.fuel === fuelVal);
+        
+        if(scenario) {
+            resBox.innerHTML = `
+                <div style="font-size:1.6rem; font-weight:700; color:#1a2e4f; margin-bottom:5px;">${scenario.state}</div>
+                <div style="font-size:1rem; color:#4b6382; margin-bottom:20px;"><em>"${scenario.psych}"</em></div>
+                <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap;">
+                    <div style="background:white; border-radius:16px; padding:15px 25px; box-shadow:0 4px 10px rgba(0,0,0,0.05); flex:1; min-width:180px;">
+                        <div style="font-size:0.7rem; font-weight:700; color:#859bb5; text-transform:uppercase; margin-bottom:10px;">Action To Take</div>
+                        <span class="badge-mini" style="background:${getActionColor(scenario.action)}; font-size:1rem; padding:0.5rem 1.2rem; color:#13294b;">${scenario.action}</span>
+                    </div>
+                    <div style="background:white; border-radius:16px; padding:15px 25px; box-shadow:0 4px 10px rgba(0,0,0,0.05); flex:1; min-width:180px;">
+                        <div style="font-size:0.7rem; font-weight:700; color:#859bb5; text-transform:uppercase; margin-bottom:10px;">Criteria Required</div>
+                        <div style="font-weight:600; color:#13294b; font-size:1.05rem;">${scenario.criteria}</div>
+                    </div>
+                </div>
+            `;
+        } else {
+            // Fallback for non-listed combinations
+            resBox.innerHTML = `
+                <div style="padding: 1.5rem; color: #859bb5;">
+                    <i class="fas fa-search" style="font-size:2.5rem; margin-bottom:15px; opacity:0.5;"></i>
+                    <div style="font-size:1.1rem; font-weight:600; color:#3d5675;">No strict predefined rule</div>
+                    <div style="font-size:0.9rem; margin-top:5px;">This exact combination isn't in the core 25 setups. Fall back to general system alignment.</div>
+                </div>
+            `;
+        }
+    };
+
+    // ========== JOURNAL ENTRIES ==========
+    let journalEntries = JSON.parse(localStorage.getItem('journalEntries')) || [];
+
+    // ========== GOOGLE SHEETS MULTI-URL ==========
+    let savedURLs = JSON.parse(localStorage.getItem('gsUrlList')) || [];
+
+    function renderUrlSelect() {
+        const select = document.getElementById('gs-url-select');
+        select.innerHTML = '<option value="">➕ Add new URL...</option>';
+        savedURLs.forEach((url, index) => {
+            const opt = document.createElement('option');
+            opt.value = url;
+            opt.textContent = (index + 1) + ': ' + (url.length > 45 ? url.substr(0, 45) + '…' : url);
+            select.appendChild(opt);
+        });
+    }
+    renderUrlSelect();
+
+    // Add URL
+    document.getElementById('add-url-btn').addEventListener('click', function() {
+        const newUrl = document.getElementById('new-gs-url').value.trim();
+        if (!newUrl) {
+            showGsStatus('Please enter a URL', 'error');
+            return;
+        }
+        if (!savedURLs.includes(newUrl)) {
+            savedURLs.push(newUrl);
+            localStorage.setItem('gsUrlList', JSON.stringify(savedURLs));
+            renderUrlSelect();
+            document.getElementById('new-gs-url').value = '';
+            showGsStatus('URL saved successfully', 'success');
+        } else {
+            showGsStatus('URL already exists', 'warning');
+        }
+    });
+
+    // Test connection
+    document.getElementById('test-conn').addEventListener('click', function() {
+        const selectedUrl = document.getElementById('gs-url-select').value;
+        const newUrl = document.getElementById('new-gs-url').value.trim();
+        const urlToTest = selectedUrl || newUrl;
+        
+        if (!urlToTest) {
+            showGsStatus('Please select or enter a URL', 'error');
+            return;
+        }
+        
+        showGsStatus('Testing connection...', 'info');
+        setTimeout(() => {
+            showGsStatus('✅ Connection successful (simulated)', 'success');
+        }, 1000);
+    });
+
+    // Save trade to sheet
+    document.getElementById('save-trade-sheet').addEventListener('click', function() {
+        const selectedUrl = document.getElementById('gs-url-select').value;
+        const newUrl = document.getElementById('new-gs-url').value.trim();
+        const urlToUse = selectedUrl || newUrl;
+        
+        if (!urlToUse) {
+            showGsStatus('Please select or enter a URL', 'error');
+            return;
+        }
+
+        // NEED TO RE-ADD THIS! The data object was missing.
+        const tradeData = {
+            timestamp: new Date().toISOString(),
+            id: document.getElementById('journalID')?.value || '',
+            pair: document.getElementById('journalPair')?.value || '',
+            timeframe: document.getElementById('journalTF')?.value || '',
+            type: document.getElementById('journalType')?.value || '',
+            fund: document.getElementById('fund')?.value || '',
+            riskPercent: document.getElementById('riskPercent')?.value || '',
+            riskAmount: document.getElementById('riskAmount')?.value || '',
+            entryPrice: document.getElementById('entryPrice')?.value || '',
+            prevLow: document.getElementById('prevLow')?.value || '',
+            atr: document.getElementById('atr')?.value || '',
+            stopLoss: document.getElementById('stopLoss')?.value || '',
+            buyDate: document.getElementById('buyDate')?.value || '',
+            sellDate: document.getElementById('sellDate')?.value || '',
+            pnl: document.getElementById('pnl')?.value || '',
+            notes: document.getElementById('journalNote')?.value || ''
+        };
+
+        showGsStatus('Sending to Google Sheets...', 'info');
+        
+        // Real Google Apps Script Fetch
+        fetch(urlToUse, {
+            method: 'POST',
+            mode: 'no-cors', // Bypasses browser CORS blocks
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(tradeData)
+        }).then(() => {
+            showGsStatus('✅ Trade saved to Google Sheets!', 'success');
+        }).catch(error => {
+            showGsStatus('❌ Error saving to sheet. Check console.', 'error');
+            console.error('Fetch error:', error);
+        });
+    }); // <-- NEEDED THIS CLOSING BRACKET!
+
+    // Clear URLs
+    document.getElementById('clear-urls').addEventListener('click', function() {
+        if (confirm('Clear all saved URLs?')) {
+            savedURLs = [];
+            localStorage.setItem('gsUrlList', '[]');
+            renderUrlSelect();
+            showGsStatus('All URLs cleared', 'info');
+        }
+    });
+
+    function showGsStatus(message, type) {
+        const statusDiv = document.getElementById('gs-status');
+        statusDiv.style.display = 'block';
+        statusDiv.textContent = message;
+        
+        if (type === 'success') statusDiv.style.background = '#d1fae5';
+        else if (type === 'error') statusDiv.style.background = '#fee2e2';
+        else if (type === 'warning') statusDiv.style.background = '#fef3c7';
+        else statusDiv.style.background = '#e0f2fe';
+        
+        setTimeout(() => {
+            statusDiv.style.display = 'none';
+        }, 3000);
+    }
+
+    // ========== PROGRESS FUNCTIONS ==========
+    window.updateProgress = function(type) {
+        if (type === 'pre-trade') {
+            const ids = ['pre-1', 'pre-2', 'pre-3', 'pre-4', 'pre-5'];
+            const checked = ids.filter(id => document.getElementById(id).checked).length;
+            const p = (checked / 5) * 100;
+            const bar = document.getElementById('pre-trade-progress');
+            bar.style.width = p + '%';
+            bar.textContent = Math.round(p) + '%';
+        }
+    }
+
+    window.updateLong = function() {
+        const ids = ['long1','long2','long3','long4','long5','long6'];
+        const checked = ids.filter(id => document.getElementById(id).checked).length;
+        const prog = document.getElementById('longProgress');
+        prog.style.width = (checked/6*100) + '%';
+        prog.textContent = checked + '/6';
+        let msg = checked >= 4 ? (checked >= 5 ? '✅ strong signal' : '✅ enter 50%') : (checked >= 3 ? '⚠️ prepare' : '🛑 wait');
+        document.getElementById('longAct').innerText = msg;
+    }
+
+    window.updateShort = function() {
+        const ids = ['short1','short2','short3','short4','short5','short6'];
+        const checked = ids.filter(id => document.getElementById(id).checked).length;
+        const prog = document.getElementById('shortProgress');
+        prog.style.width = (checked/6*100) + '%';
+        prog.textContent = checked + '/6';
+        let msg = checked >= 4 ? (checked >= 5 ? '✅ strong signal' : '✅ short 50%') : (checked >= 3 ? '⚠️ prepare' : '🛑 wait');
+        document.getElementById('shortAct').innerText = msg;
+    }
+
+    window.fillTrade = function(type) {
+        document.getElementById('journalType').value = type;
+    }
+
+    // ========== RISK CALCULATIONS ==========
+    window.calcRiskAmount = function() {
+        const fund = parseFloat(document.getElementById('fund').value) || 0;
+        const perc = parseFloat(document.getElementById('riskPercent').value) || 0;
+        const risk = (fund * perc / 100).toFixed(2);
+        document.getElementById('riskAmount').value = risk;
+        calcStop();
+    }
+
+    window.calcStop = function() {
+        const low = parseFloat(document.getElementById('prevLow').value) || 0;
+        const atr = parseFloat(document.getElementById('atr').value) || 0;
+        const mult = parseFloat(document.getElementById('atrMult').value) || 1;
+        const entry = parseFloat(document.getElementById('entryPrice').value) || 0;
+        let stop;
+        if (document.getElementById('journalType').value === 'short') {
+            stop = entry + (atr * mult);
+        } else {
+            stop = low - (atr * mult);
+        }
+        document.getElementById('stopLoss').value = stop.toFixed(2);
+    }
+
+    document.getElementById('journalType').addEventListener('change', calcStop);
+    document.getElementById('entryPrice').addEventListener('input', calcStop);
+    document.getElementById('prevLow').addEventListener('input', calcStop);
+    document.getElementById('atr').addEventListener('input', calcStop);
+    document.getElementById('atrMult').addEventListener('input', calcStop);
+    
+    calcRiskAmount();
+    calcStop();
+
+    // ========== JOURNAL FUNCTIONS ==========
+    window.saveJournalEntry = function() {
+        const entry = {
+            id: document.getElementById('journalID').value || '#',
+            pair: document.getElementById('journalPair').value,
+            tf: document.getElementById('journalTF').value,
+            type: document.getElementById('journalType').value,
+            fund: document.getElementById('fund').value,
+            riskPercent: document.getElementById('riskPercent').value,
+            riskAmount: document.getElementById('riskAmount').value,
+            entryPrice: document.getElementById('entryPrice').value,
+            prevLow: document.getElementById('prevLow').value,
+            atr: document.getElementById('atr').value,
+            stopLoss: document.getElementById('stopLoss').value,
+            buyDate: document.getElementById('buyDate').value,
+            sellDate: document.getElementById('sellDate').value,
+            pnl: document.getElementById('pnl').value,
+            notes: document.getElementById('journalNote').value.replace(/,/g, ';')
+        };
+        
+        journalEntries.push(entry);
+        localStorage.setItem('journalEntries', JSON.stringify(journalEntries));
+        updateEntriesTable();
+        document.getElementById('entryCount').innerText = journalEntries.length;
+        clearJournalFields();
+    }
+
+    function updateEntriesTable() {
+        const tbody = document.getElementById('entriesTableBody');
+        tbody.innerHTML = '';
+        journalEntries.slice().reverse().forEach(entry => {
+            const row = tbody.insertRow();
+            row.innerHTML = `
+                <td>${entry.id}</td>
+                <td>${entry.pair}</td>
+                <td>${entry.tf}</td>
+                <td>${entry.type}</td>
+                <td>$${entry.fund}</td>
+                <td>${entry.riskPercent}%</td>
+                <td>$${entry.riskAmount}</td>
+                <td>$${entry.entryPrice}</td>
+                <td>$${entry.stopLoss}</td>
+                <td>${entry.buyDate}</td>
+                <td>${entry.sellDate}</td>
+                <td>$${entry.pnl}</td>
+            `;
+        });
+    }
+
+    window.clearJournalFields = function() {
+        document.getElementById('journalID').value = '';
+        document.getElementById('journalNote').value = '';
+        document.getElementById('pnl').value = '';
+    }
+
+    // ========== CLEAR EVERYTHING FUNCTION ==========
+    document.getElementById('clearEverythingBtn').addEventListener('click', function() {
+        if (confirm('⚠️ Are you sure? This will clear ALL journal entries, uncheck ALL boxes, and remove the screenshot.')) {
+            
+            journalEntries = [];
+            localStorage.setItem('journalEntries', JSON.stringify(journalEntries));
+            updateEntriesTable();
+            document.getElementById('entryCount').innerText = '0';
+            
+            document.getElementById('journalID').value = '';
+            document.getElementById('journalPair').value = 'XAUUSD';
+            document.getElementById('journalTF').value = '1h';
+            document.getElementById('journalType').value = 'long';
+            document.getElementById('fund').value = '2000';
+            document.getElementById('riskPercent').value = '1.5';
+            document.getElementById('entryPrice').value = '2050.50';
+            document.getElementById('prevLow').value = '2045.20';
+            document.getElementById('atr').value = '12.5';
+            document.getElementById('atrMult').value = '2';
+            document.getElementById('buyDate').value = '2025-04-01';
+            document.getElementById('sellDate').value = '2025-04-03';
+            document.getElementById('pnl').value = '+124.50';
+            document.getElementById('journalNote').value = '';
+            
+            calcRiskAmount();
+            calcStop();
+            
+            const allCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+            allCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            
+            updateProgress('pre-trade');
+            updateLong();
+            updateShort();
+            
+            const previewDiv = document.getElementById('chartPreview');
+            const fileInput = document.getElementById('screenshotFile');
+            const clearBtn = document.getElementById('clearScreenshotBtn');
+            
+            if (previewDiv) previewDiv.innerHTML = '';
+            if (fileInput) fileInput.value = '';
+            if (clearBtn) clearBtn.style.display = 'none';
+            
+            showGsStatus('✅ Everything cleared successfully!', 'success');
+        }
+    });
+
+    // ========== CSV EXPORT ==========
+    window.exportToCSV = function() {
+        if (journalEntries.length === 0) {
+            alert('No journal entries to export');
+            return;
+        }
+        
+        const headers = ['ID,Pair,Timeframe,Type,Fund($),Risk%,Risk($),Entry($),PrevLow,ATR,StopLoss($),BuyDate,SellDate,PnL($),Notes'];
+        const rows = journalEntries.map(entry => {
+            return [
+                entry.id, entry.pair, entry.tf, entry.type, entry.fund, entry.riskPercent, entry.riskAmount,
+                entry.entryPrice, entry.prevLow, entry.atr, entry.stopLoss, entry.buyDate, entry.sellDate,
+                entry.pnl, `"${entry.notes}"`
+            ].join(',');
+        });
+        
+        const csvContent = headers.concat(rows).join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'trading_journal_' + new Date().toISOString().slice(0,10) + '.csv';
+        a.click();
+    }
+
+    // ========== PDF EXPORT ==========
+    document.getElementById('pdfExportBtn').addEventListener('click', function() { 
+        const { jsPDF } = window.jspdf;
+        const element = document.querySelector('.container');
+        
+        const originalText = this.innerHTML;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> generating...';
+        this.disabled = true;
+        
+        html2canvas(element, { 
+            scale: 2.5,
+            backgroundColor: '#ffffff',
+            logging: false,
+            allowTaint: true,
+            useCORS: true,
+            windowWidth: document.documentElement.scrollWidth,
+            windowHeight: document.documentElement.scrollHeight,
+            scrollX: 0,
+            scrollY: 0,
+            onclone: function(clonedDoc) {
+                clonedDoc.body.style.background = '#ffffff';
+                clonedDoc.body.style.margin = '0';
+                clonedDoc.body.style.padding = '0';
+            }
+        }).then(canvas => { 
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
+            
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+            const imgWidth = canvas.width;
+            const imgHeight = canvas.height;
+            const ratio = pdfWidth / imgWidth;
+            const height = imgHeight * ratio;
+            
+            if (height <= pdfHeight) {
+                const yOffset = (pdfHeight - height) / 2;
+                pdf.addImage(imgData, 'PNG', 0, yOffset, pdfWidth, height, undefined, 'FAST');
+                pdf.save('CarFuel_System.pdf');
+            } else {
+                let remainingHeight = height;
+                let currentPosition = 0;
+                let pageNumber = 1;
+                
+                while (remainingHeight > 0) {
+                    const pageCanvas = document.createElement('canvas');
+                    const pageContext = pageCanvas.getContext('2d');
+                    const pageImgHeight = Math.min(remainingHeight, pdfHeight);
+                    const sourceY = (currentPosition / ratio);
+                    const sourceHeight = (pageImgHeight / ratio);
+                    
+                    pageCanvas.width = imgWidth;
+                    pageCanvas.height = sourceHeight;
+                    
+                    pageContext.drawImage(canvas, 0, sourceY, imgWidth, sourceHeight, 0, 0, imgWidth, sourceHeight);
+                    
+                    const pageImgData = pageCanvas.toDataURL('image/png');
+                    
+                    if (pageNumber > 1) pdf.addPage();
+                    pdf.addImage(pageImgData, 'PNG', 0, 0, pdfWidth, pageImgHeight, undefined, 'FAST');
+                    
+                    remainingHeight -= pageImgHeight;
+                    currentPosition += pageImgHeight;
+                    pageNumber++;
+                }
+                pdf.save('CarFuel_System.pdf');
+            }
+        }).catch(error => {
+            console.error('PDF generation failed:', error);
+            alert('PDF generation failed. Please try again.');
+        }).finally(() => {
+            this.innerHTML = originalText;
+            this.disabled = false;
+        });
+    });
+
+    // ========== INITIALIZATION ==========
+    renderMatrixTable(); // Render table on load
+    updateEntriesTable();
+    document.getElementById('entryCount').innerText = journalEntries.length;
+    updateProgress('pre-trade');
+    updateLong();
+    updateShort();
+</script>
+
+<script>
+    (function() {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initScreenshot);
+        } else {
+            initScreenshot();
+        }
+        
+        function initScreenshot() {
+            const screenshotBox = document.getElementById('screenshotBox');
+            const fileInput = document.getElementById('screenshotFile');
+            const previewDiv = document.getElementById('chartPreview');
+            const clearBtn = document.getElementById('clearScreenshotBtn');
+            
+            if (!screenshotBox || !fileInput) return;
+            
+            screenshotBox.addEventListener('click', function(e) {
+                if (e.target === clearBtn || e.target.closest('button')) return;
+                fileInput.click();
+            });
+            
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('File too large. Please choose an image under 5MB.');
+                    fileInput.value = '';
+                    return;
+                }
+                
+                if (!file.type.match('image.*')) {
+                    alert('Please select an image file.');
+                    fileInput.value = '';
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    previewDiv.innerHTML = `
+                        <div style="position: relative; display: inline-block;">
+                            <img src="${ev.target.result}" 
+                                 style="max-width: 100%; max-height: 150px; border-radius: 16px; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                            <div style="margin-top: 5px; font-size: 0.7rem; color: #1a6e4b;">
+                                <i class="fas fa-check-circle"></i> image loaded
+                            </div>
+                        </div>
+                    `;
+                    if (clearBtn) clearBtn.style.display = 'inline-flex';
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            document.addEventListener('paste', function(e) {
+                if (!screenshotBox) return;
+                
+                const items = e.clipboardData.items;
+                for (let i = 0; i < items.length; i++) {
+                    if (items[i].type.indexOf('image') !== -1) {
+                        e.preventDefault();
+                        const blob = items[i].getAsFile();
+                        
+                        if (blob.size > 5 * 1024 * 1024) {
+                            alert('Image too large. Please paste an image under 5MB.');
+                            return;
+                        }
+                        
+                        const reader = new FileReader();
+                        reader.onload = function(ev) {
+                            previewDiv.innerHTML = `
+                                <div style="position: relative; display: inline-block;">
+                                    <img src="${ev.target.result}" 
+                                         style="max-width: 100%; max-height: 150px; border-radius: 16px; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                                    <div style="margin-top: 5px; font-size: 0.7rem; color: #1a6e4b;">
+                                        <i class="fas fa-check-circle"></i> image pasted
+                                    </div>
+                                </div>
+                            `;
+                            if (clearBtn) clearBtn.style.display = 'inline-flex';
+                        };
+                        reader.readAsDataURL(blob);
+                        break;
+                    }
+                }
+            });
+            
+            if (clearBtn) {
+                clearBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    previewDiv.innerHTML = '';
+                    fileInput.value = '';
+                    clearBtn.style.display = 'none';
+                });
+            }
+        }
+    })();
+</script>
+</body>
+</html>
