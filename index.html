@@ -739,7 +739,27 @@
             return;
         }
 
-	showGsStatus('Sending to Google Sheets...', 'info');
+        // NEED TO RE-ADD THIS! The data object was missing.
+        const tradeData = {
+            timestamp: new Date().toISOString(),
+            id: document.getElementById('journalID')?.value || '',
+            pair: document.getElementById('journalPair')?.value || '',
+            timeframe: document.getElementById('journalTF')?.value || '',
+            type: document.getElementById('journalType')?.value || '',
+            fund: document.getElementById('fund')?.value || '',
+            riskPercent: document.getElementById('riskPercent')?.value || '',
+            riskAmount: document.getElementById('riskAmount')?.value || '',
+            entryPrice: document.getElementById('entryPrice')?.value || '',
+            prevLow: document.getElementById('prevLow')?.value || '',
+            atr: document.getElementById('atr')?.value || '',
+            stopLoss: document.getElementById('stopLoss')?.value || '',
+            buyDate: document.getElementById('buyDate')?.value || '',
+            sellDate: document.getElementById('sellDate')?.value || '',
+            pnl: document.getElementById('pnl')?.value || '',
+            notes: document.getElementById('journalNote')?.value || ''
+        };
+
+        showGsStatus('Sending to Google Sheets...', 'info');
         
         // Real Google Apps Script Fetch
         fetch(urlToUse, {
@@ -755,6 +775,7 @@
             showGsStatus('❌ Error saving to sheet. Check console.', 'error');
             console.error('Fetch error:', error);
         });
+    }); // <-- NEEDED THIS CLOSING BRACKET!
 
     // Clear URLs
     document.getElementById('clear-urls').addEventListener('click', function() {
